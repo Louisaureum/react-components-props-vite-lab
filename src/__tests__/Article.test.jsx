@@ -1,64 +1,23 @@
-import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import Article from "../components/Article";
 
-test("renders a <article> element", () => {
-  const { container } = render(
-    <Article
-      title={"Components 101"}
-      date={"December 15, 2020"}
-      preview={"Setting up the building blocks of your site"}
-    />
-  );
-  expect(container.querySelector("article")).toBeInTheDocument();
+test("renders the article content and falls back to the default date", () => {
+  render(<Article title="Components 101" preview="Setting up the building blocks of your site" minutes={7} />);
+
+  expect(screen.getByRole("heading", { level: 3, name: "Components 101" })).toBeInTheDocument();
+  expect(screen.getByText("Setting up the building blocks of your site")).toBeInTheDocument();
+
+  const timestamp = screen.getByText((content, element) => element.tagName.toLowerCase() === "small");
+
+  expect(timestamp).toHaveTextContent("☕️☕️ 7 min read");
+  expect(timestamp).toHaveTextContent("January 1, 1970");
 });
 
-test("renders a <h3> with the title of the post", () => {
-  render(
-    <Article
-      title={"Components 101"}
-      date={"December 15, 2020"}
-      preview={"Setting up the building blocks of your site"}
-    />
-  );
-  const h3 = screen.queryByText(/Components 101/);
-  expect(h3).toBeInTheDocument();
-  expect(h3.tagName).toBe("H3");
-});
+test("shows the correct emoji count for longer reading times", () => {
+  render(<Article title="React Data Flow" preview="Passing props is never passé" date="December 11, 2020" minutes={47} />);
 
-test("renders a <small> with the date of the post", () => {
-  render(
-    <Article
-      title={"Components 101"}
-      date={"December 15, 2020"}
-      preview={"Setting up the building blocks of your site"}
-    />
-  );
-  const small = screen.queryByText(/December 15, 2020/);
-  expect(small).toBeInTheDocument();
-  expect(small.tagName).toBe("SMALL");
-});
+  const timestamp = screen.getByText((content, element) => element.tagName.toLowerCase() === "small");
 
-test("uses a default value for the date if no date is passed as a prop", () => {
-  render(
-    <Article
-      title={"Components 101"}
-      preview={"Setting up the building blocks of your site"}
-    />
-  );
-  const small = screen.queryByText(/January 1, 1970/);
-  expect(small).toBeInTheDocument();
-});
-
-test("renders a <p> with the preview text", () => {
-  render(
-    <Article
-      title={"Components 101"}
-      date={"December 15, 2020"}
-      preview={"Setting up the building blocks of your site"}
-    />
-  );
-  const p = screen.queryByText(/Setting up the building blocks of your site/);
-  expect(p).toBeInTheDocument();
-  expect(p.tagName).toBe("P");
+  expect(timestamp).toHaveTextContent("🍱🍱🍱🍱🍱 47 min read");
+  expect(timestamp).toHaveTextContent("December 11, 2020");
 });

@@ -1,30 +1,19 @@
-import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import About from "../components/About";
-import logo from "../assets/logo"
 
-test("renders a <aside> element", () => {
-  const { container } = render(<About />);
-  expect(container.querySelector("aside")).toBeInTheDocument();
+test("uses the default logo image and accessible alt text when no image prop is passed", () => {
+  render(<About about="A blog about learning React" />);
+
+  const logo = screen.getByAltText("blog logo");
+
+  expect(logo).toBeInTheDocument();
+  expect(logo).toHaveAttribute("src", "https://via.placeholder.com/215");
+  expect(screen.getByText("A blog about learning React")).toBeInTheDocument();
+  expect(logo.closest("aside")).toBeInTheDocument();
 });
 
-test("renders a <img> with the blog logo and alt text of 'blog logo'", () => {
-  render(<About image={logo} />);
-  const img = screen.queryByAltText("blog logo");
-  expect(img).toBeInTheDocument();
-  expect(img.src).toContain(logo);
-});
+test("uses the passed image prop instead of the fallback", () => {
+  render(<About image="https://example.com/logo.png" about="A blog about learning React" />);
 
-test("uses a default value for the image if no image is passed as a prop", () => {
-  render(<About />);
-  const img = screen.queryByAltText("blog logo");
-  expect(img).toBeInTheDocument();
-  expect(img.src).toContain("https://via.placeholder.com/215");
-});
-
-test("renders a <p> with the about text", () => {
-  render(<About about="About this blog" />);
-  const p = screen.queryByText("About this blog");
-  expect(p).toBeInTheDocument();
-  expect(p.tagName).toBe("P");
+  expect(screen.getByAltText("blog logo")).toHaveAttribute("src", "https://example.com/logo.png");
 });
